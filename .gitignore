@@ -1,3 +1,12 @@
+# auto-saves and such
+*~
+\#*\#
+commit.txt
+
+
+# PyCharm 
+.idea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
