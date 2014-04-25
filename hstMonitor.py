@@ -309,8 +309,6 @@ if __name__ == "__main__":
 
     # Required positional argument
     parser.add_argument('PID', type=str, help='HST Program ID to check.')
-    pidlist = PID.split(',')
-
 
     # optional arguments
     # parser.add_argument('--lookback', metavar='N', type=float,
@@ -327,6 +325,7 @@ if __name__ == "__main__":
     parser.add_argument('--emailpass', metavar='Y', type=str, help='gmail password, for sending reports.', default='')
 
     argv = parser.parse_args()
+    pidlist = argv.PID.split(',')
     verbose = not argv.quiet
 
     for pid in pidlist :
