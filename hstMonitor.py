@@ -46,7 +46,7 @@ MAST archive page: http://archive.stsci.edu/hst/search.php?sci_pep_id=%i&action=
 --------------------------------------
 """%( pid, pid )
     report = reportDone(visdict, 1 )
-    if report :
+    if report and verbose :
         print( preface + report + footer )
     elif verbose :
         print( "Daily HST Visit status: nothing to report.")
@@ -83,7 +83,7 @@ MAST archive page: http://archive.stsci.edu/hst/search.php?sci_pep_id=%i&action=
 """%( pid , pid )
 
     report = reportComing(visdict, 7 )
-    if report :
+    if report and verbose :
         print( preface + report + footer )
     elif verbose :
         print( "Daily HST Visit status: nothing to report.")
@@ -311,12 +311,13 @@ if __name__ == "__main__":
     parser.add_argument('PID', type=int, help='HST Program ID to check.')
 
     # optional arguments
-    parser.add_argument('--lookback', metavar='N', type=float,
-                        help='Number of days before today to search for completed visits.',
-                        default=1)
-    parser.add_argument('--lookahead', metavar='N', type=float,
-                        help='Number of days after today to search for scheduled visits.',
-                        default=8)
+    # parser.add_argument('--lookback', metavar='N', type=float,
+    #                     help='Number of days before today to search for completed visits.',
+    #                     default=1)
+    # parser.add_argument('--lookahead', metavar='N', type=float,
+    #                     help='Number of days after today to search for scheduled visits.',
+    #                     default=8)
+    parser.add_argument('--quiet',  action='store_true', help='Suppress all stdout print statements', default='False')
 
     mailpar = parser.add_argument_group( "Options for e-mailing reports via gmail")
     parser.add_argument('--emailto', metavar='A,B,C', type=str, help='email addresses to send reports to.', default='')
@@ -324,14 +325,17 @@ if __name__ == "__main__":
     parser.add_argument('--emailpass', metavar='Y', type=str, help='gmail password, for sending reports.', default='')
 
     argv = parser.parse_args()
+    verbose = not argv.quiet
 
     # every day, check for newly-completed visits
     checkProgramDaily( argv.PID, emailto=argv.emailto,
-                       emailuser=argv.emailuser, emailpass=argv.emailpass )
+                       emailuser=argv.emailuser, emailpass=argv.emailpass,
+                       verbose=verbose )
 
     # every week, check for newly-scheduled visits
     checkProgramWeekly( argv.PID, emailto=argv.emailto,
-                        emailuser=argv.emailuser, emailpass=argv.emailpass )
+                        emailuser=argv.emailuser, emailpass=argv.emailpass,
+                        verbose=verbose  )
 
     sched.start()
 
