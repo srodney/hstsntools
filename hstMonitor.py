@@ -15,7 +15,7 @@ except ImportError :
 
 sched = Scheduler( standalone=True )
 
-@sched.cron_schedule( minute='*' )
+#@sched.cron_schedule( minute='*' )
 def testReportMinutes( ):
     """Print the time every minute (for testing the cron-like scheduling and
     job persistence).
@@ -35,7 +35,7 @@ def checkProgramDaily( pid, emailto='',emailuser='',emailpass='',
     visdict = parseStatus(soup)
     preface = """
 %s
-Daily HST Visit Status Update for program %i
+Daily HST Execution Update for program %i
 
 """%( time.asctime(), pid )
 
@@ -86,7 +86,7 @@ MAST archive page: http://archive.stsci.edu/hst/search.php?sci_pep_id=%i&action=
     if report and verbose :
         print( preface + report + footer )
     elif verbose :
-        print( "Daily HST Visit status: nothing to report.")
+        print( "Weekly HST Visit status: nothing to report.")
 
     if report and emailto and emailuser and emailpass :
         # send a notice for visits scheduled in the next 7 days
@@ -244,7 +244,7 @@ def reportDone( visdict, dayspan=8 ):
     datekey = lambda x : visdict[x]['enddate'].isoformat()
     doneVisits = sorted(doneLately,key=datekey,reverse=False)
 
-    report += '\n\n Visits Completed in the Last %i days:\n'%dayspan
+    report += '\n Visits Completed in the Last %i days:\n\n'%dayspan
     for vis in doneVisits :
         datestr = visdict[vis]['enddate'].date().isoformat()
         timestr = visdict[vis]['enddate'].time().isoformat()[:5]
@@ -276,7 +276,7 @@ def reportComing( visdict, dayspan=8 ):
 
     if len(comingVisits)==0 : return('')
 
-    report = '\n\n Visits Scheduled (or schedulable) for the Next %i days:\n'%dayspan
+    report = '\n Visits Scheduled (or schedulable) for the Next %i days:\n\n'%dayspan
     for vis in comingVisits :
         datestr = visdict[vis]['enddate'].date().isoformat()
         timestr = visdict[vis]['enddate'].time().isoformat()[:5]
@@ -330,13 +330,13 @@ if __name__ == "__main__":
 
     for pid in pidlist :
         # every day, check for newly-completed visits
-        checkProgramDaily( pid, emailto=argv.emailto,
+        checkProgramDaily( int(pid), emailto=argv.emailto,
 
                            emailuser=argv.emailuser, emailpass=argv.emailpass,
                            verbose=verbose )
 
         # every week, check for newly-scheduled visits
-        checkProgramWeekly( pid, emailto=argv.emailto,
+        checkProgramWeekly( int(pid), emailto=argv.emailto,
                             emailuser=argv.emailuser, emailpass=argv.emailpass,
                             verbose=verbose  )
 
