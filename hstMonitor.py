@@ -276,7 +276,7 @@ def reportComing( visdict, dayspan=8 ):
 
     if len(comingVisits)==0 : return('')
 
-    report = '\n\n Visits Scheduled for the Next %i days:\n'%dayspan
+    report = '\n\n Visits Scheduled (or schedulable) for the Next %i days:\n'%dayspan
     for vis in comingVisits :
         datestr = visdict[vis]['enddate'].date().isoformat()
         timestr = visdict[vis]['enddate'].time().isoformat()[:5]
@@ -308,7 +308,9 @@ if __name__ == "__main__":
         description='Fetch the visit status page, parse the visit info, print a report.')
 
     # Required positional argument
-    parser.add_argument('PID', type=int, help='HST Program ID to check.')
+    parser.add_argument('PID', type=str, help='HST Program ID to check.')
+    pidlist = PID.split(',')
+
 
     # optional arguments
     # parser.add_argument('--lookback', metavar='N', type=float,
@@ -327,15 +329,17 @@ if __name__ == "__main__":
     argv = parser.parse_args()
     verbose = not argv.quiet
 
-    # every day, check for newly-completed visits
-    checkProgramDaily( argv.PID, emailto=argv.emailto,
-                       emailuser=argv.emailuser, emailpass=argv.emailpass,
-                       verbose=verbose )
+    for pid in pidlist :
+        # every day, check for newly-completed visits
+        checkProgramDaily( pid, emailto=argv.emailto,
 
-    # every week, check for newly-scheduled visits
-    checkProgramWeekly( argv.PID, emailto=argv.emailto,
-                        emailuser=argv.emailuser, emailpass=argv.emailpass,
-                        verbose=verbose  )
+                           emailuser=argv.emailuser, emailpass=argv.emailpass,
+                           verbose=verbose )
+
+        # every week, check for newly-scheduled visits
+        checkProgramWeekly( pid, emailto=argv.emailto,
+                            emailuser=argv.emailuser, emailpass=argv.emailpass,
+                            verbose=verbose  )
 
     sched.start()
 
