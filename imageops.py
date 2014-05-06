@@ -616,8 +616,8 @@ def int2bin( n, returntype='bitnumbers', bits=16 ) :
     elif returntype=='string': return( bitstr )
 
 
-def getplatescale( fitsfile ):
-    """ compute the plate scale of the reference 
+def getpixscale( fitsfile ):
+    """ compute the pixel scale of the reference
     pixel in arcsec/pix in each direction from 
     the fits header cd matrix
     """
@@ -628,7 +628,8 @@ def getplatescale( fitsfile ):
     # if plate scale is already defined, 
     # (as in the fits standard) just return it
     if 'CDELT1' in hdr.keys() : 
-        return( hdr['CDELT1'],hdr['CDELT2'])
+        if hdr['CDELT1']!=1 or hdr['CDELT2']!=1 :
+            return( hdr['CDELT1'],hdr['CDELT2'])
 
     # compute the plate scale
     cd11 = hdr['CD1_1'] 
