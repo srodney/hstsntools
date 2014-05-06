@@ -36,7 +36,24 @@ except KeyError :
 finally : 
     os.chdir(topdir)
 
-def computeScaling( filt1, filt2 ) :
+def filtername2datfile( filtername, camera=None):
+    """ Given an abbreviated filter name, returns the name of the .dat file
+    containing the transmission curve.
+    """
+    fname = filtername.upper()
+    if fname.startswith('F1') : return( 'WFC3_IR_%s.dat'%fname )
+    elif 'UV' in camera.upper():
+        return( 'WFC3_UVIS_%s.dat'%fname )
+    elif 'ACS' in camera.upper():
+        return( 'ACS_WFC_%s.dat'%fname )
+    elif fname=='F350LP' :
+        return( 'WFC3_UVIS_%s.dat'%fname )
+    else :
+        print("Must specify a camera for filter %s."%fname)
+        return(None)
+
+
+def computeScaling( filt1, filt2, camera1=None, camera2=None ) :
     """determine the flux scaling factor that should be multiplied to
     filt1 to match the throughput of filt2.  This returns just a
     single number, effectively assuming the source SED is flat across
@@ -44,6 +61,14 @@ def computeScaling( filt1, filt2 ) :
     throughput, not for the shape of the filter.
     """
     from scipy import integrate as scint
+
+    if filt1.lower().startswith('f') :
+        filt1 = filtername2datfile( filt1, camera=camera1 )
+    if filt2.lower().startswith('f') :
+        filt2 = filtername2datfile( filt2, camera=camera2 )
+    if not filt1.endswith('.dat') or not filt2.endswith('.dat') :
+        print("Must specify a filter name (e.g. F160W) or a .dat file.")
+        return( None )
 
     # read in the transmission curves for filters 1 and 2 
     topdir = os.path.abspath( '.' )
@@ -59,7 +84,47 @@ def computeScaling( filt1, filt2 ) :
    
     # divide
     return( int2 / int1 )
-    
+
+
+def computeScaling2to1( filt1, filt2, filt3,
+                        camera1=None, camera2=None, camera3=None) :
+    """Determine the flux scaling factor for matching the sum of filt1+filt2
+    to filt3.  This returns the value that should be multiplied to
+    (filt1+filt2) to match the throughput of filt3.  This returns just a
+    single number, effectively assuming the source SED is flat across
+    the bandpass, so that we just need to correct for total
+    throughput, not for the shape of the filter.
+    """
+    from scipy import integrate as scint
+
+    if filt1.lower().startswith('f') :
+        filt1 = filtername2datfile( filt1, camera=camera1 )
+    if filt2.lower().startswith('f') :
+        filt2 = filtername2datfile( filt2, camera=camera2 )
+    if filt3.lower().startswith('f') :
+        filt3 = filtername2datfile( filt3, camera=camera3 )
+    if not (filt1.endswith('.dat') and filt2.endswith('.dat')
+            and filt3.endswith('.dat') ):
+        print("Must specify a filter name (e.g. F160W) or a .dat file.")
+        return( None )
+
+    # read in the transmission curves for filters
+    topdir = os.path.abspath( '.' )
+    sndataroot = os.environ['SNDATA_ROOT']
+    os.chdir( sndataroot+'/filters/HST')
+    w1, f1 = np.loadtxt( filt1, unpack=True )
+    w2, f2 = np.loadtxt( filt2, unpack=True )
+    w3, f3 = np.loadtxt( filt3, unpack=True )
+    os.chdir( topdir )
+
+    # integrate
+    int1 = scint.simps( f1, w1 )
+    int2 = scint.simps( f2, w2 )
+    int3 = scint.simps( f3, w3 )
+
+    # sum and divide
+    return( int3 / (int1+int2) )
+
 
 
 def plotmedbands( z = 2, day=5 ):
