@@ -558,7 +558,7 @@ def imscaleflux( image1, scalefactor, outfile=None, clobber=False, verbose=False
         im1head = pyfits.getheader( image1 )
         im1data = pyfits.getdata( image1 )
         im1head.update("FLXSCALE",scalefactor,"Flux scaling factor")
-    elif instance( image1, ndarray ):
+    elif isinstance( image1, ndarray ):
         im1data = image1
         im1head = None
     else : 
@@ -596,6 +596,7 @@ def int2bin( n, returntype='bitnumbers', bits=16 ) :
       >> int2bitflags( 2304, returntype='string' )
         '0000 
     """
+    import exceptions
     if returntype not in ['bitnumbers','bitvalues','string']:
         raise exceptions.RuntimeError(
             "returntype must be one of ['bitnumbers','bitvalues','string']")
@@ -616,43 +617,7 @@ def int2bin( n, returntype='bitnumbers', bits=16 ) :
     elif returntype=='string': return( bitstr )
 
 
-def getpixscale( fitsfile ):
-    """ compute the pixel scale of the reference
-    pixel in arcsec/pix in each direction from 
-    the fits header cd matrix
-    """
-    from math import pi, sqrt
-    import pyfits
 
-    hdr = pyfits.getheader( fitsfile ) 
-    # if plate scale is already defined, 
-    # (as in the fits standard) just return it
-    if 'CDELT1' in hdr.keys() : 
-        if hdr['CDELT1']!=1 or hdr['CDELT2']!=1 :
-            return( hdr['CDELT1'],hdr['CDELT2'])
-
-    # compute the plate scale
-    cd11 = hdr['CD1_1'] 
-    cd12 = hdr['CD1_2']
-    cd21 = hdr['CD2_1']
-    cd22 = hdr['CD2_2']
-    
-    # define the sign based on determinant
-    det = cd11*cd22 - cd12*cd21
-    if det<0 : sgn = -1
-    else : sgn = 1
-
-    if cd12==0 and cd21==0 : 
-        # no rotation
-        cdelt1 = cd11
-        cdelt2 = cd22
-    else : 
-        cdelt1 = sgn*sqrt(cd11**2 + cd12**2)
-        cdelt2 = sqrt(cd22**2 + cd21**2)
-    cdelt1 = cdelt1  * 3600.
-    cdelt2 = cdelt2  * 3600.
-        
-    return( cdelt1, cdelt2 )
 
 
 
