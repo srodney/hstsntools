@@ -229,17 +229,17 @@ def checkDone( visdict, dayspan=0.5 ):
     if len(doneLately)==0 : return('')
 
     report = "\n"
-    report += "Archived in the last %i days : "%dayspan
+    report += "Archived in the last %.1f days : "%dayspan
     report += ','.join(archivedThisWeek).strip(',') + '\n'
-    report += "Executed in the last %i days : "%dayspan
+    report += "Executed in the last %.1f days : "%dayspan
     report += ','.join(executedThisWeek).strip(',') + '\n'
-    report += "Scheduled for the last %i days : "%dayspan
+    report += "Scheduled for the last %.1f days : "%dayspan
     report += ','.join(scheduledThisWeek).strip(',') + '\n'
 
     datekey = lambda x : visdict[x]['enddate'].isoformat()
     doneVisits = sorted(doneLately,key=datekey,reverse=False)
 
-    report += '\n Visits Completed in the Last %i days:\n\n'%dayspan
+    report += '\n Visits Completed in the Last %.1f days:\n\n'%dayspan
     for vis in doneVisits :
         datestr = visdict[vis]['enddate'].date().isoformat()
         timestr = visdict[vis]['enddate'].time().isoformat()[:5]
