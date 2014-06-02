@@ -93,16 +93,16 @@ def sendgmail( username, password, toaddr, subject, message, ccaddr=''):
     """Send an email using gmail.
     """
     import smtplib
-    from email.MIMEMultipart import MIMEMultipart
-    from email.MIMEText import MIMEText
+    from email import MIMEMultipart
+    from email import MIMEText
 
     fromaddr = "%s@gmail.com"%username
-    msg = MIMEMultipart()
+    msg = MIMEMultipart.MIMEMultipart()
     msg['From'] = fromaddr
     msg['To'] = toaddr
     msg['CC'] = ccaddr
     msg['Subject'] = subject
-    msg.attach( MIMEText( message, 'plain'))
+    msg.attach( MIMEText.MIMEText( message, 'plain'))
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
@@ -119,7 +119,7 @@ def fetchPID( pid ):
     """
     import sys
     try:
-        from bs4 import BeautifulSoup
+        from bs4 import BeautifulSoup as bs
     except ImportError :
         print("Error:  hstMonitor requires BeautifulSoup4.")
         print("        http://www.crummy.com/software/BeautifulSoup")
@@ -138,7 +138,7 @@ def fetchPID( pid ):
 
     r  = requests.get("http://www.stsci.edu/cgi-bin/get-visit-status?id=%i&markupFormat=html&observatory=HST"%pid)
     data = r.text
-    soup = BeautifulSoup(data)
+    soup = bs(data)
     return( soup )
 
 def parseStatus( soup ) :
@@ -152,7 +152,7 @@ def parseStatus( soup ) :
 
     visdict = {}
 
-    trowlist = soup.find_all('tr')
+    trowlist = soup.findAll('tr')
     for trow in trowlist :
         rowtext = trow.getText().strip().split('\n')
 
@@ -321,13 +321,13 @@ if __name__ == "__main__":
     parser.add_argument('PID', type=str, help='HST Program ID to check.')
 
     # optional arguments
-    #parser.add_argument('--lookback', metavar='N', type=float,
+    # parser.add_argument('--lookback', metavar='N', type=float,
     #                     help='Number of days before today to search for completed visits.',
     #                     default=1)
     parser.add_argument('--lookahead', metavar='N', type=float,
                          help='Number of days after today to search for scheduled visits.',
                          default=7)
-    parser.add_argument('--quiet',  dest='verbose', action='store_false', help='Suppress all stdout print statements')
+    parser.add_argument('--quiet',  dest='verbose', action='store_false', help='Suppress all stdout print statements', default=True)
     parser.add_argument('--logfile', metavar='hstMonitor.log', type=str, help='Name of the .log file.', default='hstMonitor.log')
     parser.add_argument('--clobber',  action='store_true', help='Clobber any existing .log file.')
 
@@ -344,8 +344,8 @@ if __name__ == "__main__":
 
     for pid in pidlist :
         # twice every day, check for newly-completed visits
-        sched.add_cron_job( reportDone, day='*',hour='0,12',minute=0,second=0,
-                            name='hstMon: Twice-daily Execution Check',
+        sched.add_cron_job( reportDone, hour='0,12',
+                            name='hstMon: Twice-daily Execution Check for %i'%int(pid),
                             args=[int(pid)],
                             kwargs={'dayspan':0.5,
                                     'logfile':argv.logfile,
@@ -357,8 +357,8 @@ if __name__ == "__main__":
 
         # every week, check for newly-scheduled visits
         sched.add_cron_job( reportComing,
-                            day_of_week='sun',hour=0,minute=0,second=0,
-                            name='hstMon: Weekly Schedule Check',
+                            day_of_week='sun',
+                            name='hstMon: Weekly Schedule Check for %i'%int(pid),
                             args=[int(pid)],
                             kwargs={'dayspan':argv.lookahead,
                                     'logfile':argv.logfile,
@@ -366,7 +366,7 @@ if __name__ == "__main__":
                                     'emailuser':argv.emailuser,
                                     'emailpass':argv.emailpass,
                                     'verbose':argv.verbose }
-                            )
+                           )
 
 
     sched.start()
