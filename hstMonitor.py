@@ -28,7 +28,7 @@ MAST archive page: http://archive.stsci.edu/hst/search.php?sci_pep_id=%i&action=
     if report and verbose :
         print( preface + report + footer )
     elif verbose :
-        print( "Twice Daily HST Visit status: nothing to report.")
+        print( "Twice Daily HST Visit status for PID %i: nothing to report."%pid)
 
     if report and logfile :
         fout = open(logfile,'a')
@@ -36,7 +36,7 @@ MAST archive page: http://archive.stsci.edu/hst/search.php?sci_pep_id=%i&action=
         fout.close()
     elif logfile :
         fout = open(logfile,'a')
-        print>>fout, time.asctime() + "   Twice-Daily HST Visit status: nothing to report."
+        print>>fout, time.asctime() + "   Twice-Daily HST Visit status for PID %i: nothing to report."%pid
         fout.close()
 
     if report and emailto and emailuser and emailpass :
@@ -72,7 +72,7 @@ MAST archive page: http://archive.stsci.edu/hst/search.php?sci_pep_id=%i&action=
     if report and verbose :
         print( preface + report + footer )
     elif verbose :
-        print( "Weekly HST Visit status: nothing to report.")
+        print( "Weekly HST Visit status for PID %i: nothing to report."%pid)
 
     if report and logfile :
         fout = open(logfile,'a')
@@ -80,7 +80,7 @@ MAST archive page: http://archive.stsci.edu/hst/search.php?sci_pep_id=%i&action=
         fout.close()
     elif logfile :
         fout = open(logfile,'a')
-        print>>fout, time.asctime() + "  :  Weekly HST Visit status: nothing to report."
+        print>>fout, time.asctime() + "  :  Weekly HST Visit status for PID %i: nothing to report."%pid
         fout.close()
 
     if report and emailto and emailuser and emailpass :
