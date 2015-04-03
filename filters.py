@@ -9,7 +9,7 @@ import os
 topdir = os.path.abspath( '.' )
 try :
     sndataroot = os.environ['SNDATA_ROOT']
-    os.chdir( sndataroot+'/filters/HST')
+    os.chdir( sndataroot+'/filters/HST_CANDELS')
 
     w435, f435 = np.loadtxt( 'ACS_WFC_F435W.dat', unpack=True )
     w606, f606 = np.loadtxt( 'ACS_WFC_F606W.dat', unpack=True )
@@ -18,6 +18,8 @@ try :
 
     w350, f350 = np.loadtxt( 'WFC3_UVIS_F350LP.dat', unpack=True )
     w606u, f606u = np.loadtxt( 'WFC3_UVIS_F606W.dat', unpack=True )
+    w763u, f763u = np.loadtxt( 'WFC3_UVIS_F763M.dat', unpack=True )
+    w845u, f845u = np.loadtxt( 'WFC3_UVIS_F845M.dat', unpack=True )
     w127, f127 = np.loadtxt( 'WFC3_IR_F127M.dat', unpack=True )
     w125, f125 = np.loadtxt( 'WFC3_IR_F125W.dat', unpack=True )
     w160, f160 = np.loadtxt( 'WFC3_IR_F160W.dat', unpack=True )
