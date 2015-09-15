@@ -5,6 +5,55 @@ S.Rodney
 Simple image operations. 
 
 """
+import exceptions
+from pyfits import getheader
+from math import sqrt
+
+def getpixscale(image, returntuple=False, ext=None):
+    """ Compute the pixel scale of the reference pixel in arcsec/pix in
+    each direction from the fits header cd matrix.
+
+    :param image: any valid input to getheader(), namely:
+      a string giving a fits filename, a pyfits hdulist or hdu, a pyfits
+      header object, a tuple or list giving [hdr,data]
+    :param returntuple: bool. When True, return the two pixel scale values
+         along the x and y axes.  When False, return the average of the two.
+    :param ext: (optional) extension number for science array
+    :return: float value or tuple giving the pixel scale in arcseconds/pixel.
+    """
+    hdr = getheader(image, ext=ext)
+    if 'CD1_1' in hdr:
+        cd11 = hdr['CD1_1']
+        cd12 = hdr['CD1_2']
+        cd21 = hdr['CD2_1']
+        cd22 = hdr['CD2_2']
+        # define the sign based on determinant
+        det = cd11 * cd22 - cd12 * cd21
+        if det < 0:
+            sgn = -1
+        else:
+            sgn = 1
+
+        if cd12 == 0 and cd21 == 0:
+            # no rotation: x=RA, y=Dec
+            cdelt1 = cd11
+            cdelt2 = cd22
+        else:
+            cdelt1 = sgn * sqrt(cd11 ** 2 + cd12 ** 2)
+            cdelt2 = sqrt(cd22 ** 2 + cd21 ** 2)
+    elif 'CDELT1' in hdr.keys() and \
+            (hdr['CDELT1'] != 1 and hdr['CDELT2'] != 1):
+        cdelt1 = hdr['CDELT1']
+        cdelt2 = hdr['CDELT2']
+    else:
+        raise exceptions.RuntimeError(
+            "Cannot identify CD matrix in %s" % image)
+    cdelt1 *= 3600.
+    cdelt2 *= 3600.
+    if returntuple:
+        return cdelt1, cdelt2
+    else:
+        return (abs(cdelt1) + abs(cdelt2)) / 2.
 
 def imstamp( image, xc, yc, nx, ny, ext=0, fillpix=0, saveas=None, clobber=False ):
     """ 
